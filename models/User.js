@@ -1,56 +1,65 @@
-const mongoose=require('mongoose');
-const userSchema=new mongoose.Schema({
-    firstName:{
-        type:String,
-        required:true
+const mongoose = require("mongoose");
+const userSchema = new mongoose.Schema(
+  {
+    firstName: {
+      type: String,
+      required: true,
     },
-    lastName:{
-        type:String,
+    lastName: {
+      type: String,
     },
-    username:{
-        type:String,
-        required:true,
-        unique:true
+    username: {
+      type: String,
+      required: true,
+      unique: true,
     },
-    bio:{
-        type:String
+    gender: {
+      type: String,
+      enum: ["male", "female", "others"],
+      required: true,
     },
-    location:{
-        type:String
+    bio: {
+      type: String,
     },
-    dob:{
-        type:Date,
-        required:true
+    location: {
+      type: String,
     },
-    profilePicture: { 
-       type:String,
-       default:"https://i.pinimg.com/474x/27/5f/99/275f99923b080b18e7b474ed6155a17f.jpg?nii=t"
+    dob: {
+      type: Date,
+      required: true,
     },
-    profileImages:{
-        type:[String],
-        default:[]
+    profilePicture: {
+      type: String,
+      default:
+        "https://i.pinimg.com/474x/27/5f/99/275f99923b080b18e7b474ed6155a17f.jpg?nii=t",
     },
-    role:{
-        type:String,
-        required:true
+    profileImages: {
+      type: [String],
+      default: [],
     },
-    email:{
-        type:String,
-        required:true,
-        unique:true
+    role: {
+      type: String,
+      required: true,
     },
-    password:{
-        type:String,
-        required:true
+    email: {
+      type: String,
+      required: true,
+      unique: true,
     },
-    status:{
-        type:String,
-        enum:['active','inactive'],
-        default:'active'
+    password: {
+      type: String,
+      required: true,
     },
-},{
-    timestamps:true
-});
-const User=mongoose.model('User',userSchema);
+    status: {
+      type: String,
+      enum: ["active", "inactive"],
+      default: "active",
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+const User = mongoose.model("User", userSchema);
 // User.createIndex({username:1});
-module.exports=User;
+module.exports = User;
