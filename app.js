@@ -27,12 +27,7 @@ app.use(
 
 //  HTTP server and socket.io instance
 const server = http.createServer(app);
-const io = socketIO(server, {
-  cors: {
-    origin: "http://16.171.249.248/",
-    credentials: true,
-  },
-});
+const io = socketIO(server);
 
 // Store online users (userId -> socketId)
 const onlineUsers = new Map();
