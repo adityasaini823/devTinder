@@ -20,7 +20,7 @@ app.use(cookieParser());
 //cors
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "http://16.171.249.248/",
     credentials: true,
   })
 );
@@ -29,7 +29,7 @@ app.use(
 const server = http.createServer(app);
 const io = socketIO(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "http://16.171.249.248/",
     credentials: true,
   },
 });
