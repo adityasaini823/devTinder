@@ -80,11 +80,20 @@ router.post("/like/:id", userValidator, async (req, res) => {
       status: "pending",
     });
     await frndReq.save();
-    const io = req.app.get("io");
-    io.emit("friend_request_sent", {
-      sender_id: req.user._id,
-      receiver_id: req.params.id,
-    });
+
+    try {
+      const io = req.app.get("io");
+      if (io) {
+        io.emit("friend_request_sent", {
+          sender_id: req.user._id,
+          receiver_id: req.params.id,
+        });
+      }
+    } catch (socketError) {
+      console.error("Socket error:", socketError);
+      // Continue with the response even if socket fails
+    }
+
     return res.status(200).json({
       success: true,
       message: "Friend request sent",
@@ -121,11 +130,20 @@ router.post("/accept/:request_id", userValidator, async (req, res) => {
       user2,
     });
     await newMatch.save();
-    const io = req.app.get("io");
-    io.emit("friend_request_accepted", {
-      user1,
-      user2,
-    });
+
+    try {
+      const io = req.app.get("io");
+      if (io) {
+        io.emit("friend_request_accepted", {
+          user1,
+          user2,
+        });
+      }
+    } catch (socketError) {
+      console.error("Socket error:", socketError);
+      // Continue with the response even if socket fails
+    }
+
     return res.status(200).json({
       success: true,
       message: "Friend request accepted",
@@ -144,11 +162,20 @@ router.post("/reject/:request_id", userValidator, async (req, res) => {
       { $set: { status: "rejected" } },
       { new: true }
     );
-    const io = req.app.get("io");
-    io.emit("friend_request_rejected", {
-      user1: frndReq.sender_id,
-      user2: frndReq.receiver_id,
-    });
+
+    try {
+      const io = req.app.get("io");
+      if (io) {
+        io.emit("friend_request_rejected", {
+          user1: frndReq.sender_id,
+          user2: frndReq.receiver_id,
+        });
+      }
+    } catch (socketError) {
+      console.error("Socket error:", socketError);
+      // Continue with the response even if socket fails
+    }
+
     res.status(200).json({
       success: true,
       message: "Friend request rejected",
@@ -184,26 +211,43 @@ router.get("/friends", userValidator, async (req, res) => {
 });
 router.get("/requests", userValidator, async (req, res) => {
   try {
-    // console.log(JSON.stringify(await Swipe.find({})));
-    const pendingRequests = await Swipe.find({
+    // Get received requests
+    const receivedRequests = await Swipe.find({
       receiver_id: req.user._id,
       status: "pending",
     }).populate("sender_id");
 
-    if (pendingRequests.length === 0) {
+    // Get sent requests
+    const sentRequests = await Swipe.find({
+      sender_id: req.user._id,
+      status: "pending",
+    }).populate("receiver_id");
+
+    if (receivedRequests.length === 0 && sentRequests.length === 0) {
       return res.status(200).json({
         success: true,
         message: "No pending friend requests",
       });
     }
-    // Extract only user details from sender_id
-    const formattedRequests = pendingRequests.map((request) => ({
-      request_id: request._id, // ✅ Store request ID
-      sender: request.sender_id, // ✅ Store sender details
+
+    // Format received requests
+    const formattedReceivedRequests = receivedRequests.map((request) => ({
+      request_id: request._id,
+      sender: request.sender_id,
+      type: "received",
     }));
+
+    // Format sent requests
+    const formattedSentRequests = sentRequests.map((request) => ({
+      request_id: request._id,
+      receiver: request.receiver_id,
+      type: "sent",
+    }));
+
     return res.status(200).json({
       success: true,
-      requests: formattedRequests,
+      receivedRequests: formattedReceivedRequests,
+      sentRequests: formattedSentRequests,
     });
   } catch (error) {
     return res.status(500).json({

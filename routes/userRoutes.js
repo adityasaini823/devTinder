@@ -63,10 +63,7 @@ router.patch(
   async (req, res) => {
     try {
       const profilepicpath = req.file
-        ? `${req.protocol}://${req.get("host")}/${req.file.path.replace(
-            /\\/g,
-            "/"
-          )}`
+        ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
         : null;
       const user = await User.findByIdAndUpdate(
         req.user._id,

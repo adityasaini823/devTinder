@@ -20,7 +20,7 @@ app.use(cookieParser());
 //cors
 app.use(
   cors({
-    origin: "http://16.171.249.248",
+    origin: ["http://localhost:5173", "http://16.171.249.248"],
     credentials: true,
   })
 );
@@ -29,10 +29,13 @@ app.use(
 const server = http.createServer(app);
 const io = socketIO(server, {
   cors: {
-    origin: "http://16.171.249.248",
+    origin: ["http://localhost:5173", "http://16.171.249.248"],
     credentials: true,
   },
 });
+
+// Make io accessible to routes
+app.set("io", io);
 
 // Store online users (userId -> socketId)
 const onlineUsers = new Map();
